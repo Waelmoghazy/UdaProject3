@@ -8,10 +8,9 @@ commands:
         - run:
             name:
             command:
-                 curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-                  unzip awscliv2.zip
-                  sudo ./aws/install
-
+                 curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" 
+                 unzip awscliv2.zip 
+                 sudo ./aws/install
 
   install_ansible:
        description: Install Ansible v2
@@ -170,7 +169,7 @@ jobs:
               --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}" 
 
       - run:
-          name: Ensure front-end infrastructure exist
+          name: Ensure front-end infrastructure exists
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/frontend.yml \
