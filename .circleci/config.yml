@@ -32,7 +32,7 @@ destroy-environment:
           default: ${CIRCLE_WORKFLOW_ID:0:7}
    steps:
      - run:
-         name: Destroy environments
+         name: Destroy Environments
          when: on_fail
          command: |
                aws cloudformation delete-stack --stack-name udapeople-backend-<< parameters.Workflow_ID >>
@@ -195,7 +195,8 @@ jobs:
           paths:
             - project/.circleci/ansible/inventory.txt
       
-      - destroy-environment   
+      - destroy-environment:
+          when_to_run: always   
 
   configure-infrastructure:
     docker:
