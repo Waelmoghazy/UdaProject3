@@ -29,7 +29,7 @@ destroy-environment:
    parameters:
       Workflow_ID:
           Type: string
-          Default: ${CIRCLE_WORKFLOW_ID:0:7}
+          default: ${CIRCLE_WORKFLOW_ID:0:7}
    steps:
      - run:
          name: Destroy environments
@@ -194,7 +194,6 @@ jobs:
           root: ~/
           paths:
             - project/.circleci/ansible/inventory.txt
-      
       - destroy-environment
       # Here's where you will add some code to rollback on failure      
 
