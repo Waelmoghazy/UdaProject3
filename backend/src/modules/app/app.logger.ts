@@ -12,7 +12,7 @@ const getLogglyTransport = () => {
   return new Loggly({
     subdomain: logglySubdomain,
     token: logglyToken,
-    tags: ['glee-backend'],
+    tags: ['glee2-backend'],
     level: process.env.LOGGLY_LEVEL || 'info',
     json: true,
     isBulk: true,
