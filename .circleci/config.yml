@@ -50,8 +50,6 @@ commands:
           name: Revert migrations
           when: on_fail
           command: |
-           # Curl command here to see if there was a successful migration associated with 
-           # the workflow id, store result in SUCCESS variable SUCCESS = 1
            SUCCESS=$(curl --insecure http://kvdb.io/${KVDB_BUCKET}/migration_<< parameters.Workflow_ID >>)
            # Logic for reverting the database state
            if (( $SUCCESS == 1 )); 
@@ -226,8 +224,9 @@ jobs:
       - install_awscli
       - run:
           name: Run migrations
+          no_output_timeout: 7m
           command: |
-            cd backend
+            cd project/backend
             npm install
             npm run migrations > migrations_dump.txt
       - run:
