@@ -246,6 +246,7 @@ jobs:
             fi   
       - destroy-environment
       - revert-migrations
+
   deploy-frontend:
     docker:
       - image: cimg/base:stable
@@ -268,7 +269,7 @@ jobs:
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --output text)
 
-            eche "API_URL=http://${BACKEND_PUBLIC_IP}:3030" >> frontend/.env
+            echo "API_URL=http://${BACKEND_PUBLIC_IP}:3030" >> frontend/.env
             cat frontend/.env
       - run:
           name: Deploy frontend objects
@@ -306,7 +307,7 @@ jobs:
             npm run build 
             tar -czf artifact.tar.gz dist/* package*
 
-            cd..
+            cd ..
             cp backend/artifact.tar.gz .circleci/ansible/roles/deploy/files
       - run:
           name: Deploy backend
