@@ -27,7 +27,7 @@ Resources:
     Properties:
       InstanceType: t2.micro
       SecurityGroups:
-          - Ref: InstanceSecurityGroup
+        - Ref: InstanceSecurityGroup
       KeyName: udaproject3
       ImageId: ami-09cd747c78a9add63 
       Tags:
