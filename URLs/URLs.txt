@@ -1,5 +1,0 @@
-URL01
-https://github.com/Waelmoghazy/UdaProject3
-URL02
-http://udapeople-f468602.s3-website-us-east-1.amazonaws.com
-
