@@ -26,6 +26,14 @@ Resources:
           ToPort: 9100
           CidrIp: 0.0.0.0/0
 
+  ElasticIP:
+    Type: AWS::EC2::EIP
+    Properties:
+      InstanceId: !Ref EC2Instance
+      Tags:
+        - Key: Name
+          Value: !Sub backendEIP-${ID}
+
   EC2Instance:
     Type: AWS::EC2::Instance
     Properties:
