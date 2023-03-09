@@ -34,42 +34,42 @@ commands:
             sudo npm install --global n
             sudo n 13.8.0
             
-  # destroy-environment:
-  #   description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
-  #   parameters:
-  #     Workflow_ID:
-  #       type: string
-  #       default: ${CIRCLE_WORKFLOW_ID:0:7}
-  #   steps:
-  #     - run:
-  #         name: Destroy environments
-  #         when: on_fail
-  #         command: |
-  #           aws cloudformation delete-stack --stack-name udapeople-backend-<< parameters.Workflow_ID >>
-  #           echo ${CIRCLE_WORKFLOW_ID:0:7}
-  #           aws s3 rm s3://udapeople-<<parameters.Workflow_ID>> --recursive
-  #           aws cloudformation delete-stack --stack-name udapeople-frontend-<< parameters.Workflow_ID >>
+  destroy-environment:
+    description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
+    parameters:
+      Workflow_ID:
+        type: string
+        default: ${CIRCLE_WORKFLOW_ID:0:7}
+    steps:
+      - run:
+          name: Destroy environments
+          when: on_fail
+          command: |
+            aws cloudformation delete-stack --stack-name udapeople-backend-<< parameters.Workflow_ID >>
+            echo ${CIRCLE_WORKFLOW_ID:0:7}
+            aws s3 rm s3://udapeople-<<parameters.Workflow_ID>> --recursive
+            aws cloudformation delete-stack --stack-name udapeople-frontend-<< parameters.Workflow_ID >>
 
-  # revert-migrations:
-  #   description: Revert the last migration if successfully run in the current workflow.
-  #   parameters:
-  #     Workflow_ID:
-  #       type: string
-  #       default: ${CIRCLE_WORKFLOW_ID:0:7}    
-  #   steps:
-  #     - run:
-  #         name: Revert migrations
-  #         when: on_fail
-  #         command: |
-  #          SUCCESS=$(curl --insecure http://kvdb.io/${KVDB_BUCKET}/migration_<< parameters.Workflow_ID >>)
+  revert-migrations:
+    description: Revert the last migration if successfully run in the current workflow.
+    parameters:
+      Workflow_ID:
+        type: string
+        default: ${CIRCLE_WORKFLOW_ID:0:7}    
+    steps:
+      - run:
+          name: Revert migrations
+          when: on_fail
+          command: |
+           SUCCESS=$(curl --insecure http://kvdb.io/Bg36EPdKLjV8Uwbg72fEUp/migration_<< parameters.Workflow_ID >>)
            
-  #          # Logic for reverting the database state
-  #          if (( $SUCCESS == 1 )); 
-  #          then
-  #            cd ~/project/backend
-  #            npm install
-  #            npm run migration:revert
-  #          fi
+           # Logic for reverting the database state
+           if (( $SUCCESS == 1 )); 
+           then
+             cd ~/project/backend
+             npm install
+             npm run migration:revert
+           fi
             
 jobs:
   build-frontend:
@@ -212,7 +212,7 @@ jobs:
           paths:
             - project/.circleci/ansible/inventory.txt
 
-      # - destroy-environment  
+      - destroy-environment  
 
   configure-infrastructure:
     docker:
@@ -230,7 +230,7 @@ jobs:
             cd .circleci/ansible
             cat inventory.txt
             ansible-playbook -i inventory.txt configure-server.yml
-      # - destroy-environment  
+      - destroy-environment  
      
   run-migrations:
     docker:
@@ -248,8 +248,8 @@ jobs:
           name: Send migration status to kvdb.io
           command: |
             curl -d '1' https://kvdb.io/Bg36EPdKLjV8Uwbg72fEUp/migration_${CIRCLE_WORKFLOW_ID:0:7}   
-      # - destroy-environment
-      # - revert-migrations
+      - destroy-environment
+      - revert-migrations
 
   deploy-frontend:
     docker:
@@ -279,8 +279,8 @@ jobs:
             npm run build
             aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
       
-      # - destroy-environment
-      # - revert-migrations
+      - destroy-environment
+      - revert-migrations
             
   deploy-backend:
     docker:
@@ -336,8 +336,8 @@ jobs:
             cat inventory.txt
             ansible-playbook -i inventory.txt deploy-backend.yml
 
-      # - destroy-environment
-      # - revert-migrations
+      - destroy-environment
+      - revert-migrations
 
   smoke-test:
     docker:
@@ -366,13 +366,13 @@ jobs:
             echo $FRONTEND_WEBSITE
             if curl -s $FRONTEND_WEBSITE | grep "Welcome"
             then 
-              exit 0
-            else 
               exit 1
+            else 
+              exit 2
             fi
             
-      # - destroy-environment
-      # - revert-migrations
+      - destroy-environment
+      - revert-migrations
 
   cloudfront-update:
     docker:
@@ -397,34 +397,34 @@ jobs:
           name: Update cloudfront distribution
           command: |
             aws cloudformation deploy --template-file .circleci/files/cloudfront.yml --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}" --stack-name InitialStack
-      # - destroy-environment
-      # - revert-migrations
+      - destroy-environment
+      - revert-migrations
 
-  # cleanup:
-  #     docker:
-  #       - image: cimg/base:stable
-  #     steps:
-  #       - checkout
-  #       - attach_workspace:
-  #           at: ~/
-  #       - install_awscli
-  #       - run:
-  #           name: Remove old stacks and files
-  #           command: |
-  #             OLD_WORKFLOW_ID=$(cat ~/OLD_WORKFLOW_ID.txt)
-  #             echo OLD_WORKFLOW_ID: "${OLD_WORKFLOW_ID}"
-  #             echo Current_CIRCLE_WORKFLOW_ID: "${CIRCLE_WORKFLOW_ID:0:7}"
+  cleanup:
+      docker:
+        - image: cimg/base:stable
+      steps:
+        - checkout
+        - attach_workspace:
+            at: ~/
+        - install_awscli
+        - run:
+            name: Remove old stacks and files
+            command: |
+              OLD_WORKFLOW_ID=$(cat ~/OLD_WORKFLOW_ID.txt)
+              echo OLD_WORKFLOW_ID: "${OLD_WORKFLOW_ID}"
+              echo Current_CIRCLE_WORKFLOW_ID: "${CIRCLE_WORKFLOW_ID:0:7}"
           
-  #             export STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
-  #                     --stack-status-filter CREATE_COMPLETE --no-paginate --output text)) 
-  #             echo Stack names: "${STACKS[@]}"       
+              export STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
+                      --stack-status-filter CREATE_COMPLETE --no-paginate --output text)) 
+              echo Stack names: "${STACKS[@]}"       
               
-  #             if [[ "${STACKS[@]}" =~ "${OLD_WORKFLOW_ID}" ]]
-  #             then
-  #               aws cloudformation delete-stack --stack-name "udapeople-backend-${OLD_WORKFLOW_ID}"
-  #               aws s3 rm s3://udapeople-${OLD_WORKFLOW_ID} --recursive
-  #               aws cloudformation delete-stack --stack-name "udapeople-frontend-${OLD_WORKFLOW_ID}"  
-  #             fi
+              if [[ "${STACKS[@]}" =~ "${OLD_WORKFLOW_ID}" ]]
+              then
+                aws cloudformation delete-stack --stack-name "udapeople-backend-${OLD_WORKFLOW_ID}"
+                aws s3 rm s3://udapeople-${OLD_WORKFLOW_ID} --recursive
+                aws cloudformation delete-stack --stack-name "udapeople-frontend-${OLD_WORKFLOW_ID}"  
+              fi
 
 workflows:
   default:
@@ -456,5 +456,5 @@ workflows:
          requires: [deploy-backend, deploy-frontend]
       - cloudfront-update:
          requires: [smoke-test]
-      # - cleanup:
-      #    requires: [cloudfront-update]
+      - cleanup:
+         requires: [cloudfront-update]
