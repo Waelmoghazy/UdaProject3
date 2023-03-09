@@ -302,7 +302,7 @@ jobs:
             # install AWS CLI
             curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
             unzip -o awscliv2.zip
-            sudo ./aws/install
+            sudo ./aws/install --update
             
             # install node js
             curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
