@@ -63,7 +63,7 @@ commands:
           command: |
               cd ~/project/backend
               npm install
-              npm run migrations:revert    
+              npm run migration:revert    
             
 jobs:
   build-frontend:
